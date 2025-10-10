@@ -147,6 +147,8 @@ export default function Home() {
             <header
                 className={`bg-white/50 backdrop-blur-xl shadow sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'py-1.5' : 'py-4'}`}
             >
+
+
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
                     {/* Logo + Clinic */}
                     <div className="flex items-center gap-3 sm:gap-2">
