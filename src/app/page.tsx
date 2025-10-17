@@ -122,18 +122,41 @@ export default function Home() {
         e.preventDefault();
         setLoading(true);
         const toastId = toast.loading('Sending message...');
+
+        // Collect form data
+        const formData = new FormData(e.currentTarget);
+        const payload = {
+            name: formData.get('fullName'),
+            clientEmailAddress: formData.get('email'),
+            phoneNumber: phone.replace(/^\+/, ''), // removes leading '+'
+            message: formData.get('message'),
+        };
+
         try {
-            await new Promise((res) => setTimeout(res, 1500));
-            toast.success('Message sent successfully!', { id: toastId });
-            setLoading(false);
-            formRef?.current?.reset();
-            setPhone('');
+            // Call your Spring Boot backend
+            const res = await fetch('http://192.168.1.65:8080/api/v1/mail/contact-us/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+
+            if (data?.responseHeader?.responseCode === 200) {
+                toast.success(data.responseHeader.customerMessage || 'Message sent successfully!', { id: toastId });
+                formRef.current?.reset();
+                setPhone('');
+            } else {
+                toast.error(data?.responseHeader?.customerMessage || 'Failed to send message. Try again.', { id: toastId });
+            }
         } catch (err) {
             console.error('Unable to send message:', err);
             toast.error('Failed to send message. Try again.', { id: toastId });
+        } finally {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -288,7 +311,7 @@ export default function Home() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
                         {[1, 2, 3, 4].map((i) => (
                             <div key={i} className="h-28 sm:h-36 rounded overflow-hidden relative bg-gray-200 flex items-center justify-center text-gray-500">
-                                <Image src={`/before-and-after-${i}.jpg`} alt={`Gallery ${i}`} fill className="object-cover hover:scale-105 transition-transform duration-300" placeholder="blur" blurDataURL="/gallery-placeholder.jpg" />
+                                <Image src={`/before-and-after-${i}.jpg`} alt={`Gallery ${i}`} fill className="object-cover hover:scale-105 transition-transform duration-300" placeholder="blur" blurDataURL="/before-and-after-1.jpg" />
                             </div>
                         ))}
                     </div>
