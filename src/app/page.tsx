@@ -25,6 +25,7 @@ import {TeamMember} from "@/interfaces/TeamMember";
 import {Testimonial} from "@/interfaces/Testimonial";
 import {Service} from "@/interfaces/Service";
 import {FetchHelper} from "@/utils/fetchHelper";
+import {CONTACT_INFO} from "@/configs/config";
 
 export default function Home() {
     const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({});
@@ -350,8 +351,8 @@ export default function Home() {
                     <div className="bg-white p-4 sm:p-6 rounded shadow-sm hover:shadow-lg transition-all duration-300">
                         <h3 className="text-2xl font-bold mb-3">Contact & Appointments</h3>
                         <ul className="text-sm sm:text-xs text-gray-600 mb-3 space-y-2">
-                            <li className="flex items-center gap-2"><FaPhone className="text-blue-600" /> (+254) 797 579 972</li>
-                            <li className="flex items-center gap-2"><FaEnvelope className="text-blue-600" /> oduorfrancis134@gmail.com</li>
+                            <li className="flex items-center gap-2"><FaPhone className="text-blue-600" /> {CONTACT_INFO.phone}</li>
+                            <li className="flex items-center gap-2"><FaEnvelope className="text-blue-600" /> {CONTACT_INFO.email}</li>
                             <li className="flex items-center gap-2"><FaMapMarkerAlt className="text-blue-600" /> Thika Town • Next to KCB Bank</li>
                         </ul>
                         <iframe
@@ -393,7 +394,7 @@ export default function Home() {
                                 <button type="submit" disabled={loading} className="px-4 py-2 sm:px-3 sm:py-2 bg-blue-600 text-white rounded flex items-center gap-2 justify-center hover:bg-blue-700 transition-all text-sm sm:text-xs">
                                     <FaEnvelope /> {loading ? 'Sending...' : 'Send Message'}
                                 </button>
-                                <a href="mailto:oduorfrancis134@gmail.com" className="px-4 py-2 sm:px-3 sm:py-2 border rounded flex items-center gap-2 justify-center text-blue-600 hover:bg-blue-50 transition-all text-sm sm:text-xs">
+                                <a href={`mailto:${CONTACT_INFO.email}`} className="px-4 py-2 sm:px-3 sm:py-2 border rounded flex items-center gap-2 justify-center text-blue-600 hover:bg-blue-50 transition-all text-sm sm:text-xs">
                                     <FaEnvelope /> Email Us
                                 </a>
                             </div>
