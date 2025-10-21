@@ -1,49 +1,30 @@
 'use client';
 
-import React, { useState, FormEvent, JSX, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, {FormEvent, useEffect, useRef, useState} from 'react';
+import {motion} from 'framer-motion';
 import Image from 'next/image';
 import {
+    FaChevronDown,
+    FaCommentDots,
+    FaEnvelope,
     FaFacebook,
     FaInstagram,
     FaLinkedin,
-    FaPhone,
-    FaEnvelope,
     FaMapMarkerAlt,
-    FaChevronDown,
-    FaTooth,
+    FaPhone,
     FaSmile,
     FaTeeth,
+    FaTooth,
     FaUser,
-    FaCommentDots,
 } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { PhoneInput } from 'react-international-phone';
+import {PhoneInput} from 'react-international-phone';
 import 'react-international-phone/style.css';
-import {getBaseUrl} from "../../utils/getBaseUrl";
-
-interface FAQ {
-    q: string;
-    a: string;
-}
-
-interface TeamMember {
-    name: string;
-    role: string;
-    bio: string;
-    img: string;
-}
-
-interface Testimonial {
-    name: string;
-    text: string;
-}
-
-interface Service {
-    title: string;
-    desc: string;
-    icon: JSX.Element;
-}
+import {FAQ} from "@/interfaces/FAQ";
+import {TeamMember} from "@/interfaces/TeamMember";
+import {Testimonial} from "@/interfaces/Testimonial";
+import {Service} from "@/interfaces/Service";
+import {FetchHelper} from "@/utils/fetchHelper";
 
 export default function Home() {
     const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({});
@@ -133,24 +114,18 @@ export default function Home() {
             message: formData.get('message'),
         };
 
-        const baseUrl = getBaseUrl();
 
         try {
-            // Call your Spring Boot backend
-            const res = await fetch(`${baseUrl}/api/v1/mail/contact-us/send`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
+            const apiInterface = new FetchHelper();
 
-            const data = await res.json();
+            const data = await apiInterface.post<boolean>('/api/v1/mail/contact-us/send', payload);
 
-            if (data?.responseHeader?.responseCode === 200) {
-                toast.success(data.responseHeader.customerMessage || 'Message sent successfully!', { id: toastId });
+            if (data?.ResponseHeader?.responseCode === 200) {
+                toast.success(data.ResponseHeader?.customerMessage || 'Message sent successfully!', { id: toastId });
                 formRef.current?.reset();
                 setPhone('');
             } else {
-                toast.error(data?.responseHeader?.customerMessage || 'Failed to send message. Try again.', { id: toastId });
+                toast.error(data?.ResponseHeader?.customerMessage || 'Failed to send message. Try again.', { id: toastId });
             }
         } catch (err) {
             console.error('Unable to send message:', err);
