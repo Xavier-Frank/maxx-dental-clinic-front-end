@@ -1,48 +1,31 @@
 'use client';
 
-import React, { useState, FormEvent, JSX, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, {FormEvent, useEffect, useRef, useState} from 'react';
+import {motion} from 'framer-motion';
 import Image from 'next/image';
 import {
+    FaChevronDown,
+    FaCommentDots,
+    FaEnvelope,
     FaFacebook,
     FaInstagram,
     FaLinkedin,
-    FaPhone,
-    FaEnvelope,
     FaMapMarkerAlt,
-    FaChevronDown,
-    FaTooth,
+    FaPhone,
     FaSmile,
     FaTeeth,
+    FaTooth,
     FaUser,
-    FaCommentDots,
 } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { PhoneInput } from 'react-international-phone';
+import {PhoneInput} from 'react-international-phone';
 import 'react-international-phone/style.css';
-
-interface FAQ {
-    q: string;
-    a: string;
-}
-
-interface TeamMember {
-    name: string;
-    role: string;
-    bio: string;
-    img: string;
-}
-
-interface Testimonial {
-    name: string;
-    text: string;
-}
-
-interface Service {
-    title: string;
-    desc: string;
-    icon: JSX.Element;
-}
+import {FAQ} from "@/interfaces/FAQ";
+import {TeamMember} from "@/interfaces/TeamMember";
+import {Testimonial} from "@/interfaces/Testimonial";
+import {Service} from "@/interfaces/Service";
+import {FetchHelper} from "@/utils/fetchHelper";
+import {CONTACT_INFO} from "@/configs/config";
 
 export default function Home() {
     const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({});
@@ -58,6 +41,27 @@ export default function Home() {
         hidden: { opacity: 0, y: 30 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
     };
+
+    const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const galleryImages = [
+        "/before-and-after-1.jpg",
+        "/before-and-after-2.jpg",
+        "/before-and-after-3.jpg",
+        "/before-and-after-4.jpg",
+    ];
+
+    const openGallery = (index: number) => {
+        setCurrentImageIndex(index);
+        setIsGalleryOpen(true);
+    };
+
+    const closeGallery = () => setIsGalleryOpen(false);
+
+    const showNext = () => setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+    const showPrev = () => setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+
 
     const faqs: FAQ[] = [
         {
@@ -132,22 +136,18 @@ export default function Home() {
             message: formData.get('message'),
         };
 
+
         try {
-            // Call your Spring Boot backend
-            const res = await fetch('http://192.168.1.65:8080/api/v1/mail/contact-us/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
+            const apiInterface = new FetchHelper();
 
-            const data = await res.json();
+            const data = await apiInterface.post<boolean>('/api/v1/mail/contact-us/send', payload);
 
-            if (data?.responseHeader?.responseCode === 200) {
-                toast.success(data.responseHeader.customerMessage || 'Message sent successfully!', { id: toastId });
+            if (data?.ResponseHeader?.responseCode === 200) {
+                toast.success(data.ResponseHeader?.customerMessage || 'Message sent successfully!', { id: toastId });
                 formRef.current?.reset();
                 setPhone('');
             } else {
-                toast.error(data?.responseHeader?.customerMessage || 'Failed to send message. Try again.', { id: toastId });
+                toast.error(data?.ResponseHeader?.customerMessage || 'Failed to send message. Try again.', { id: toastId });
             }
         } catch (err) {
             console.error('Unable to send message:', err);
@@ -193,8 +193,8 @@ export default function Home() {
 
                     {/* Contact info */}
                     <div className="hidden md:flex flex-col text-sm text-right">
-                        <div className="flex items-center gap-1 justify-end"><FaPhone className="text-blue-600" /> (+254) 797 579 972</div>
-                        <div className="flex items-center gap-1 text-gray-500 text-xs justify-end"><FaMapMarkerAlt /> Thika Town • Next to KCB Bank</div>
+                        <div className="flex items-center gap-1 justify-end"><FaPhone className="text-blue-600" /> {CONTACT_INFO.phone}</div>
+                        <div className="flex items-center gap-1 text-gray-500 text-xs justify-end"><FaMapMarkerAlt /> {CONTACT_INFO.address}</div>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -247,7 +247,7 @@ export default function Home() {
                                 <FaEnvelope /> Book an Appointment
                             </a>
                             <a
-                                href="tel:+254797579972"
+                                href={`tel:${CONTACT_INFO.phone}`}
                                 className="px-4 py-2 sm:px-3 sm:py-2 border border-blue-600 rounded flex items-center gap-2 justify-center text-blue-600 hover:bg-blue-50 transition-all text-sm sm:text-xs"
                             >
                                 <FaPhone /> Call Us
@@ -306,12 +306,30 @@ export default function Home() {
                 </motion.section>
 
                 {/* Gallery */}
-                <motion.section id="gallery" className="bg-white p-4 sm:p-6 rounded shadow-sm" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
+                <motion.section
+                    id="gallery"
+                    className="bg-white p-4 sm:p-6 rounded shadow-sm"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeInUp}
+                >
                     <h3 className="text-2xl font-bold mb-4">Before & After</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="h-28 sm:h-36 rounded overflow-hidden relative bg-gray-200 flex items-center justify-center text-gray-500">
-                                <Image src={`/before-and-after-${i}.jpg`} alt={`Gallery ${i}`} fill className="object-cover hover:scale-105 transition-transform duration-300" placeholder="blur" blurDataURL="/before-and-after-1.jpg" />
+                        {galleryImages.map((img, i) => (
+                            <div
+                                key={i}
+                                className="h-28 sm:h-36 rounded overflow-hidden relative bg-gray-200 flex items-center justify-center text-gray-500 cursor-pointer"
+                                onClick={() => openGallery(i)}
+                            >
+                                <Image
+                                    src={img}
+                                    alt={`Gallery ${i}`}
+                                    fill
+                                    className="object-cover hover:scale-105 transition-transform duration-300"
+                                    placeholder="blur"
+                                    blurDataURL="/before-and-after-1.jpg"
+                                />
                             </div>
                         ))}
                     </div>
@@ -333,9 +351,9 @@ export default function Home() {
                     <div className="bg-white p-4 sm:p-6 rounded shadow-sm hover:shadow-lg transition-all duration-300">
                         <h3 className="text-2xl font-bold mb-3">Contact & Appointments</h3>
                         <ul className="text-sm sm:text-xs text-gray-600 mb-3 space-y-2">
-                            <li className="flex items-center gap-2"><FaPhone className="text-blue-600" /> (+254) 797 579 972</li>
-                            <li className="flex items-center gap-2"><FaEnvelope className="text-blue-600" /> oduorfrancis134@gmail.com</li>
-                            <li className="flex items-center gap-2"><FaMapMarkerAlt className="text-blue-600" /> Thika Town • Next to KCB Bank</li>
+                            <li className="flex items-center gap-2"><FaPhone className="text-blue-600" /> {CONTACT_INFO.phone}</li>
+                            <li className="flex items-center gap-2"><FaEnvelope className="text-blue-600" /> {CONTACT_INFO.email}</li>
+                            <li className="flex items-center gap-2"><FaMapMarkerAlt className="text-blue-600" /> {CONTACT_INFO.address}</li>
                         </ul>
                         <iframe
                             className="w-full h-48 sm:h-56 rounded"
@@ -376,7 +394,7 @@ export default function Home() {
                                 <button type="submit" disabled={loading} className="px-4 py-2 sm:px-3 sm:py-2 bg-blue-600 text-white rounded flex items-center gap-2 justify-center hover:bg-blue-700 transition-all text-sm sm:text-xs">
                                     <FaEnvelope /> {loading ? 'Sending...' : 'Send Message'}
                                 </button>
-                                <a href="mailto:oduorfrancis134@gmail.com" className="px-4 py-2 sm:px-3 sm:py-2 border rounded flex items-center gap-2 justify-center text-blue-600 hover:bg-blue-50 transition-all text-sm sm:text-xs">
+                                <a href={`mailto:${CONTACT_INFO.email}`} className="px-4 py-2 sm:px-3 sm:py-2 border rounded flex items-center gap-2 justify-center text-blue-600 hover:bg-blue-50 transition-all text-sm sm:text-xs">
                                     <FaEnvelope /> Email Us
                                 </a>
                             </div>
@@ -412,6 +430,44 @@ export default function Home() {
                     </div>
                 </div>
             </footer>
+
+            {isGalleryOpen && (
+                <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
+                    <button
+                        className="absolute top-4 right-4 text-white text-2xl font-bold"
+                        onClick={closeGallery}
+                    >
+                        ✕
+                    </button>
+
+                    <div className="relative w-11/12 max-w-3xl h-[60vh] sm:h-[70vh] mx-auto">
+                        <Image
+                            src={galleryImages[currentImageIndex]}
+                            alt={`Gallery ${currentImageIndex}`}
+                            fill
+                            className="object-contain"
+                        />
+                        {/* Previous */}
+                        <button
+                            onClick={showPrev}
+                            className="absolute -left-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow z-50"
+                        >
+                            ◀
+                        </button>
+                        {/* Next */}
+                        <button
+                            onClick={showNext}
+                            className="absolute -right-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow z-50"
+                        >
+                            ▶
+                        </button>
+                    </div>
+
+                </div>
+            )}
+
         </div>
     );
+
+
 }
