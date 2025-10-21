@@ -20,6 +20,7 @@ import {
 import toast from 'react-hot-toast';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
+import {getBaseUrl} from "../../utils/getBaseUrl";
 
 interface FAQ {
     q: string;
@@ -132,9 +133,11 @@ export default function Home() {
             message: formData.get('message'),
         };
 
+        const baseUrl = getBaseUrl();
+
         try {
             // Call your Spring Boot backend
-            const res = await fetch('http://192.168.1.65:8080/api/v1/mail/contact-us/send', {
+            const res = await fetch(`${baseUrl}/api/v1/mail/contact-us/send`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
