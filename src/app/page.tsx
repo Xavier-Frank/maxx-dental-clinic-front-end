@@ -193,8 +193,8 @@ export default function Home() {
 
                     {/* Contact info */}
                     <div className="hidden md:flex flex-col text-sm text-right">
-                        <div className="flex items-center gap-1 justify-end"><FaPhone className="text-blue-600" /> (+254) 797 579 972</div>
-                        <div className="flex items-center gap-1 text-gray-500 text-xs justify-end"><FaMapMarkerAlt /> Thika Town • Next to KCB Bank</div>
+                        <div className="flex items-center gap-1 justify-end"><FaPhone className="text-blue-600" /> {CONTACT_INFO.phone}</div>
+                        <div className="flex items-center gap-1 text-gray-500 text-xs justify-end"><FaMapMarkerAlt /> {CONTACT_INFO.address}</div>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -247,7 +247,7 @@ export default function Home() {
                                 <FaEnvelope /> Book an Appointment
                             </a>
                             <a
-                                href="tel:+254797579972"
+                                href={`tel:${CONTACT_INFO.phone}`}
                                 className="px-4 py-2 sm:px-3 sm:py-2 border border-blue-600 rounded flex items-center gap-2 justify-center text-blue-600 hover:bg-blue-50 transition-all text-sm sm:text-xs"
                             >
                                 <FaPhone /> Call Us
@@ -353,7 +353,7 @@ export default function Home() {
                         <ul className="text-sm sm:text-xs text-gray-600 mb-3 space-y-2">
                             <li className="flex items-center gap-2"><FaPhone className="text-blue-600" /> {CONTACT_INFO.phone}</li>
                             <li className="flex items-center gap-2"><FaEnvelope className="text-blue-600" /> {CONTACT_INFO.email}</li>
-                            <li className="flex items-center gap-2"><FaMapMarkerAlt className="text-blue-600" /> Thika Town • Next to KCB Bank</li>
+                            <li className="flex items-center gap-2"><FaMapMarkerAlt className="text-blue-600" /> {CONTACT_INFO.address}</li>
                         </ul>
                         <iframe
                             className="w-full h-48 sm:h-56 rounded"
