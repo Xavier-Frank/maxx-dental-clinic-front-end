@@ -41,6 +41,27 @@ export default function Home() {
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
     };
 
+    const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const galleryImages = [
+        "/before-and-after-1.jpg",
+        "/before-and-after-2.jpg",
+        "/before-and-after-3.jpg",
+        "/before-and-after-4.jpg",
+    ];
+
+    const openGallery = (index: number) => {
+        setCurrentImageIndex(index);
+        setIsGalleryOpen(true);
+    };
+
+    const closeGallery = () => setIsGalleryOpen(false);
+
+    const showNext = () => setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+    const showPrev = () => setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+
+
     const faqs: FAQ[] = [
         {
             q: 'How often should I come for teeth cleaning?',
@@ -284,12 +305,30 @@ export default function Home() {
                 </motion.section>
 
                 {/* Gallery */}
-                <motion.section id="gallery" className="bg-white p-4 sm:p-6 rounded shadow-sm" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}>
+                <motion.section
+                    id="gallery"
+                    className="bg-white p-4 sm:p-6 rounded shadow-sm"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeInUp}
+                >
                     <h3 className="text-2xl font-bold mb-4">Before & After</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="h-28 sm:h-36 rounded overflow-hidden relative bg-gray-200 flex items-center justify-center text-gray-500">
-                                <Image src={`/before-and-after-${i}.jpg`} alt={`Gallery ${i}`} fill className="object-cover hover:scale-105 transition-transform duration-300" placeholder="blur" blurDataURL="/before-and-after-1.jpg" />
+                        {galleryImages.map((img, i) => (
+                            <div
+                                key={i}
+                                className="h-28 sm:h-36 rounded overflow-hidden relative bg-gray-200 flex items-center justify-center text-gray-500 cursor-pointer"
+                                onClick={() => openGallery(i)}
+                            >
+                                <Image
+                                    src={img}
+                                    alt={`Gallery ${i}`}
+                                    fill
+                                    className="object-cover hover:scale-105 transition-transform duration-300"
+                                    placeholder="blur"
+                                    blurDataURL="/before-and-after-1.jpg"
+                                />
                             </div>
                         ))}
                     </div>
@@ -390,6 +429,44 @@ export default function Home() {
                     </div>
                 </div>
             </footer>
+
+            {isGalleryOpen && (
+                <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
+                    <button
+                        className="absolute top-4 right-4 text-white text-2xl font-bold"
+                        onClick={closeGallery}
+                    >
+                        ✕
+                    </button>
+
+                    <div className="relative w-11/12 max-w-3xl h-[60vh] sm:h-[70vh] mx-auto">
+                        <Image
+                            src={galleryImages[currentImageIndex]}
+                            alt={`Gallery ${currentImageIndex}`}
+                            fill
+                            className="object-contain"
+                        />
+                        {/* Previous */}
+                        <button
+                            onClick={showPrev}
+                            className="absolute -left-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow z-50"
+                        >
+                            ◀
+                        </button>
+                        {/* Next */}
+                        <button
+                            onClick={showNext}
+                            className="absolute -right-6 top-1/2 -translate-y-1/2 p-2 bg-white rounded-full shadow z-50"
+                        >
+                            ▶
+                        </button>
+                    </div>
+
+                </div>
+            )}
+
         </div>
     );
+
+
 }
